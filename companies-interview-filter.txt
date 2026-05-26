@@ -1,0 +1,824 @@
+1.how communication happens between two pods in different namespaces? 
+By default, pods within a Kubernetes cluster can communicate with each other using their internal IP addresses. This communication happens over a virtual network overlay provided by the underlying container runtime or network plugin. 
+DNS Naming Convention: The DNS name for a Service follows this format:
+
+<service-name>.<namespace>.svc.cluster.local
+For example, if you have a Service named service-a in namespace namespace-a, the DNS name would be:
+
+service-a.namespace-a.svc.cluster.local
+
+2.how to work DNS in Linux ? what is the record of DNS?
+The configuration file for dns in linux is 'etc/resolv.conf'. The file contains the ip addresses of dns servers to which the system should send its queries.
+
+3.what is meaning of aws transite gateway? why we can use transite gateway? 
+
+4.for tomcat security and harden, what precaution you can taken? 
+Tomcat is an open-source web server and servlet. The Apache Software Foundation has developed it. It is used widely for hosting Java-based applications on the web. It is built on Java technologies and implements the Java Servlet and JavaServer Pages (JSP) specifications.
+
+5.Kubectl does not work, what's the problem and how to solve
+a. Make sure you have installed and configured kubectl correctly on your local machine. kubectl version
+b. The kubectl requires a kubeconfig file to connect to a Kubernetes cluster. The kubeconfig file is usually located under the ~/.kube/config directory. Make sure that you have a valid kubeconfig file
+c. Check VPN connectivity 
+
+6.Did you write a Docker file from scratch? What is the syntax for Docker file? 
+
+FROM node:14-alpine3.16
+
+WORKDIR /app
+
+COPY . .
+
+RUN npm install
+
+CMD [ "npm", "start" ]
+
+7. How do you give permission to a particular secret to a user or application?
+
+you need to create Role and Role binding.
+
+Create a role:
+
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+ namespace: test
+ name: role-test-account
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+Create a role binding:
+
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+ name: role-test-account-binding
+ namespace: test
+subjects:
+- kind: ServiceAccount
+  name: test-account
+  namespace: test
+roleRef:
+ kind: Role
+ name: role-test-account
+ apiGroup: rbac.authorization.k8s.io
+ 
+8. Jenkins Job [ Declarative pipeline vs Scripted Pipeline ], Jenkins of Kubernetes, Jenkins Job backup, Jenkins server DR 
+
+declarative pipeline:
+
+pipeline {
+    agent any
+    stages {
+        stage('Build') {
+            steps {
+                //
+            }
+        }
+        stage('Test') {
+            steps {
+                //
+            }
+        }
+        stage('Deploy') {
+            steps {
+                //
+            }
+        }
+    }
+}
+
+scripted pipeline:
+
+node {
+    stage('Build') {
+        //
+    }
+    stage('Test') {
+        //
+    }
+    stage('Deploy') {
+        //
+    }
+}
+
+There are many ways to do this but the easiest way I can think of is doing a backup of the Jenkins home folder.
+
+9. [Pod Template vs Deployment manifest, Ingress vs Loadbalancer vs ClusterIP vs NodePort] 
+
+In Kubernetes, both Pod and Deployment manifest files are used to describe how applications should be run within the cluster, but they serve different purposes and contain different configurations. Here’s a detailed comparison of the two:
+ 
+### Pod Manifest File
+ 
+A Pod is the smallest deployable unit in Kubernetes. It represents a single instance of a running process in the cluster and can contain one or more containers.
+ 
+**Pod Manifest Example**:
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  containers:
+  - name: my-container
+    image: nginx:latest
+    ports:
+    - containerPort: 80
+```
+ 
+**Key Characteristics**:
+- **Single Unit**: Defines a single Pod, which might contain multiple containers running on the same node and sharing the same network namespace.
+- **Static**: Pods defined this way are static and don’t provide features like scaling, rolling updates, or self-healing.
+- **Use Cases**: Typically used for simple or testing scenarios, where advanced features are not required.
+ 
+### Deployment Manifest File
+ 
+A Deployment provides declarative updates for Pods and ReplicaSets. It’s a higher-level concept that manages the lifecycle of applications, providing capabilities like scaling, rolling updates, and rollback.
+ 
+**Deployment Manifest Example**:
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+```
+ 
+**Key Characteristics**:
+- **Declarative Updates**: Allows you to declare the desired state, and Kubernetes manages the changes to reach and maintain that state.
+- **Scaling**: Supports horizontal scaling (adjusting the number of replicas).
+- **Rolling Updates**: Enables rolling updates, ensuring zero downtime by gradually updating instances of the application.
+- **Rollback**: Facilitates rollback to previous versions if an update fails.
+- **Self-Healing**: Automatically replaces failed or unhealthy Pods to maintain the desired number of replicas.
+
+
+Ingress
+
+->Ingress is a native Kubernetes resource like pods, deployments, etc. Using ingress, you can maintain the DNS routing configurations. The ingress controller does the actual routing by reading the routing rules from ingress objects stored in etcd.
+->Ingress is not a load balancer. It contains all the routing rules, custom headers, and TLS configurations. The ingress controller acts as a load balancer.
+->Ingress is a kubernetes object. Nginx is used as an ingress controller (Reverse proxy).
+
+Egress
+
+->In Kubernetes, Egress refers to the traffic that flows out of a cluster, from a pod to an external endpoint. Egress traffic can be used to access external services such as databases, APIs, and other services running outside of the cluster.
+
+Cluster IP
+->In Kubernetes, the ClusterIP Service is used for Pod-to-Pod communication within the same cluster. This means that a client running outside of the cluster, such as a user accessing an application over the internet, cannot directly access a ClusterIP Service.
+
+Node Port
+->The NodePort Service is a way to expose your application to external clients. An external client is anyone who is trying to access your application from outside of the Kubernetes cluster.
+
+Loadbalancer
+->A LoadBalancer Service is another way you can expose your applications to external clients. However, it only works if you're using Kubernetes on a cloud platform that supports this Service type.
+
+10. What is the difference between variable.tf and terraform.tfvars file?
+
+-> Both files help in declaring and initialzation of variable in terraform. we can use varibale.tf to declare any variable and we can use terraform.tfvars to initialize those value. let take an example where we can have to provisoning the infrastructure environment wise so we can use tfvars file to provide those value in different files. we can provide those file value with terrafor plan command
+terraform plan -var-file="stage.tfvars
+
+-main.tf-
+
+provider "aws"{
+
+  region = "east-europe"
+  secret_key = "hfcbsfsbfs"
+}
+
+resource "aws_ec2" "my_ec2"{
+  ami= "ami-gsyfgf"
+  instance_type = var.instance_type
+  tags = {
+      name= var.environment_name
+  }
+ }
+
+-variable.tf-
+
+variable "instance_type"{
+ }
+variable "environment_name"{
+ }
+ 
+-stage.tfvars-
+instance_type = "t2.micro"
+environment_name = "stage"
+
+-production.tfvars-
+instance_type = "t2.micro"
+environment_name = "prod"
+
+11. What is the terraform state file?
+
+-> Terraform stores information about your infrastructure in a state file. This state file keeps track of resources created by your configuration and maps them to real-world resources. terraform.tfstate is the file. we can also see the resource in state file using terraform show command that list resources in human readble format.
+.
+12. Program questions.
+
+- Reverse the String
+- 
+
+13.  Docker command to transfer an image from one machine to another without using docker registry
+
+-> You will need to save the Docker image as a tar file:
+
+docker save -o <path for generated tar file> <image name>
+Then copy your image to a new system with regular file transfer tools such as cp, scp, or rsync (preferred for big files). After that you will have to load the image into Docker:
+
+docker load -i <path to image tar file>
+You should add filename (not just directory) with -o, for example:
+
+docker save -o c:/myfile.tar centos:16
+your image syntax may need the repository prefix (:latest tag is default)
+
+docker save -o C:\path\to\file.tar repository/imagename
+
+14. What is the command used to delete a branch?
+
+-> To delete the local branch, use one of the following:
+
+git branch -d <branch_name>
+git branch -D <branch_name>
+
+Delete remote branch 
+
+$ git push <remote_name> --delete <branch_name>
+
+15. What do you know about git reflog?
+
+-> The Git reflog (short for "reference log") is a powerful and handy utility in Git that keeps a record of all reference updates in your Git repository. It's like a magical notebook that keeps a record of all the changes you've made, so that if something goes wrong, you can refer to your Git journal to find a way to fix it! 
+The reflog is a record that maintains a chronological history of significant changes made to the HEAD, branches, and tags. These changes consist of:
+Commits
+Checkouts
+Merges
+Rebases
+
+-> Git log just shows the commit its message author and date.
+
+16. Difference between git revert and git reset.
+
+-> GIT revert
+- create a new commit that undoes the chnages of a previous commit.
+-mantains a clear and traceable history
+git revert <commit>
+
+-> GIT reset
+-moves the branch pointer to a specified commit
+- has different modes --soft, --mixed, --hard
+git reset [mode] <commit>
+
+17. How to copy a commit one branch to another branch?
+
+-> we can use git cherry-pick command to copy a commit from one branch to another. git cherry-pick commitsha
+
+18. What are the layers of Docker image? 
+
+-> The order of Dockerfile instructions matters. A Docker build consists of a series of ordered build instructions. Each instruction in a Dockerfile roughly translates to an image layer. The following diagram illustrates how a Dockerfile translates into a stack of layers in a container image.
+
+FROM openjdk:8-jdk-alpine
+ARG JAR_FILE=target/*.jar
+COPY ${JAR_FILE} app.jar
+ENTRYPOINT ["java","-jar","/app.jar"]
+
+19. what is git stash?
+
+-> The git stash command takes your uncommitted changes (both staged and unstaged), saves them away for later use, and then reverts them from your working copy.
+git stash, git stash pop, git stash apply, git stash -u/-a
+
+20. what is git bisect?
+
+-> The git bisect command is a powerful tool that quickly checks out a commit halfway between a known good state and a known bad state and then asks you to identify the commit as either good or bad. Then it repeats until you find the exact commit where the code in question was first introduced.
+
+$ git bisect start
+$ git bisect bad        # Git assumes you mean HEAD by default
+$ git bisect good <ref> # specify a tag or commit ID for <ref>
+$ git bisect reset
+
+21. Difference between CMD and ENTRYPOINT.
+CMD. Sets default parameters that can be overridden from the Docker Command Line Interface (CLI) when a container is running.
+ENTRYPOINT. Default parameters that cannot be overridden when Docker Containers run with CLI parameters. It can be overriden with --ENTRYPOINT flag.
+
+22. What is taint and tolerations is k8s?
+
+-> Taints are applied on nodes which restrict pods to schedule on that node unless we specify matching toleartion on the pods.
+   kubectl taint nodes node1 key1=value1:NoSchedule, taint-effect=Noschedule,prefernoschedule,noexecute
+   
+-> Tolerations are specify in the pod definition file.
+
+  tolerations:
+- key: "key1"
+  operator: "Equal"
+  value: "value1"
+  effect: "NoSchedule"
+
+
+23. What is the process of k8s cluster upgrade.
+
+-> https://devopscube.com/upgrade-kubernetes-cluster-kubeadm/
+
+24. what is the syntax for "for_each" and count meta argument in terraform.
+
+-> The count parameter in Terraform allows you to create a specified number of identical resources. It is an integral part of a resource block that defines how many instances of a particular resource should be created.
+
+resource "azurerm_resource_group" "example" {
+  count    = 3
+  name     = "resourceGroup-${count.index}"
+  location = "East US"
+  tags = {
+    iteration = "Resource Group number ${count.index}"
+  }
+}
+
+The for_each loop in Terraform, used within the for_each argument, iterates over a map or a set of strings, allowing you to create resources that correspond to the given elements.
+
+resource "azurerm_resource_group" "example" {
+  for_each  = toset(["rg-prod", "rg-dev", "rg-test"])
+  name      = each.value
+  location  = "East US"
+  tags = {
+    Name = each.value
+  }
+}
+
+# Alternatively, using a map
+resource "azurerm_storage_account" "example" {
+  for_each  = {
+    prod = "eastus2"
+    dev  = "westus"
+    test = "centralus"
+  }
+  name                     = "storage${each.key}"
+  resource_group_name      = azurerm_resource_group.example[each.key].name
+  location                 = each.value
+  account_tier             = "Standard"
+  account_replication_type = "GRS"
+}
+
+
+25. what are advantage and disadvantage of multi stage build in docker.
+
+-> **Multi-stage builds** in Docker provide a way to optimize Docker images by allowing the creation of separate stages within a single `Dockerfile`. Each stage can contain distinct steps for building, testing, or preparing an application, and only the necessary output is carried over to the final image. This method is commonly used to produce smaller, more efficient, and secure production images, as unnecessary dependencies and build tools are excluded from the final image. 
+
+Here are some **advantages and disadvantages** of using multi-stage builds:
+
+---
+
+### Advantages of Multi-Stage Builds
+
+1. **Smaller Final Image Size**:
+   - Only essential files and dependencies are copied to the final image, reducing its size. For instance, in a typical web application, only the application binary and static assets may be included in the final image, leaving out compilers and other build tools.
+   - Smaller images download and deploy faster, which can improve CI/CD and deployment times.
+
+2. **Enhanced Security**:
+   - Since unnecessary tools and dependencies (like compilers or build tools) are left out of the final image, the attack surface is reduced.
+   - Fewer components in the production image mean fewer potential vulnerabilities.
+
+3. **Improved Build Efficiency**:
+   - Different stages can reuse cache layers, which speeds up the build process by not recompiling or rebuilding parts that haven’t changed.
+   - Using multi-stage builds, you can divide the Dockerfile logically and re-build only the stages that require updates, saving time and resources.
+
+4. **Simplified Dockerfile and Maintainability**:
+   - Multi-stage builds allow for a more modular and organized approach within the Dockerfile, making it easier to understand and maintain.
+   - Different stages can be tailored specifically for build, test, and deployment needs, reducing the complexity of handling dependencies for each stage separately.
+
+5. **Improved CI/CD Workflow**:
+   - Multi-stage builds enable the integration of testing and linting steps into the Dockerfile, allowing these processes to be handled within the container, which improves consistency and reproducibility across different environments.
+   - CI/CD pipelines can use a single Dockerfile for all steps, from development through production, improving efficiency.
+
+---
+
+### Disadvantages of Multi-Stage Builds
+
+1. **Increased Complexity for Simple Projects**:
+   - For small applications or simple projects, multi-stage builds can add unnecessary complexity to the Dockerfile, making it harder to follow.
+   - Additional stages may not add much value for basic applications that don’t have many dependencies or build steps.
+
+2. **Limited Layer Caching**:
+   - Docker layer caching only applies up to the point where a change occurs. If a change happens early in the build process (like in the first stage), subsequent stages will need to be rebuilt, increasing build times.
+   - This can be an issue when large dependencies change frequently, as the entire multi-stage build process may need to re-run, even if the final stages remain the same.
+
+3. **Increased Build Time in Certain Scenarios**:
+   - For complex applications with multiple stages and dependencies, the build process can take longer because each stage might add build time overhead.
+   - If the Dockerfile structure isn’t optimized, it can lead to slower builds compared to single-stage Dockerfiles, especially if many dependencies change frequently.
+
+4. **Compatibility Issues**:
+   - Multi-stage builds are only supported in Docker 17.05 and newer, which may be a limitation if your deployment environment uses older Docker versions.
+   - Some CI/CD platforms or orchestration tools may have limitations or lack compatibility with multi-stage builds.
+
+5. **Learning Curve**:
+   - Developers need to understand how multi-stage builds work to use them effectively. This can be a challenge for teams unfamiliar with Docker best practices, especially if they need to balance stages, caching, and layer management for optimal builds.
+   - Multi-stage builds also require careful structuring to optimize caching, which may not be straightforward without experience.
+
+---
+
+### When to Use Multi-Stage Builds
+Multi-stage builds are especially valuable for:
+- **Microservices and modular applications**: where lightweight and efficient images are beneficial.
+- **Large applications with many dependencies**: where reducing the image size and isolating build tools is critical for security and performance.
+- **CI/CD environments**: that require reproducible builds across various stages (build, test, deploy).
+
+For small applications or where Docker builds are very simple, single-stage builds might suffice without added complexity. 
+
+Overall, multi-stage builds provide significant benefits for producing optimized, secure, and modular Docker images, particularly for production environments.
+
+
+
+26. If you have docker compose setup how to deploy app service on one host and db on another.
+
+->
+
+27. Difference between bridge and host networking in docker?
+
+-> Docker networking allows containers to communicate with each other, and with the host system, using various networking modes:
+   - **Bridge (default)**: Each container gets its own IP address on a private Docker network, and containers on the same network can communicate with each other.
+   - **Host**: The container shares the host’s network stack, meaning it doesn’t get its own IP address, but instead uses the host’s IP and ports.
+   - **None**: The container has no network interface. It's isolated from other containers and the host.
+   - **Overlay**: Used to connect containers across multiple Docker hosts in a Swarm cluster, forming a virtual network.
+   - **Macvlan**: Assigns a MAC address to each container, making them appear as physical devices on the network.
+   
+ 
+28. what is terraform workspace?
+-> The persistent data stored in the backend belongs to a workspace. The backend initially has only one workspace containing one Terraform state associated with that configuration. workspace is one type of isolation basically used for multiple environment infra creation like dev & prod. Each workspace have seperate state file.
+
+create new workspace -> terraform workspace new <workspace name>
+switch workspace -> terraform workspace select <workspace name>
+
+resource "azurerm_virtual_machine" "myvm"{
+
+ storage_account_name= "my-app-${terraform.workspace}
+
+}
+
+
+	
+29. what is $? in linux.
+->  It holds the exist status of last command, if status is non zero than its failed and if zero its passed.
+
+ #!/bin/bash
+ mkdir /home/mydirectory
+ if [$? -eq 0]; then
+  echo "directory created"
+ else
+  echo "directory not created"
+ fi
+ 
+30. Aks 3 tier architecture.
+31. How frontend and backed service communicate in k8s.
+32. Azure - nsg, vnet, subnet, app services, 
+33. What is local & variable in terraform.
+
+-> local are use to define value local that can be used across the terraform file but its immutable can't be changed from runtime argument.
+varibale are same as local but it is mutable that can be changed from runtime argument.
+
+locals{
+ location = "west-europe"
+ }
+
+variable "location"{
+
+ default = "west-europe"
+ 
+}
+
+34. How we can rename a particular resource in terraform without recreating it.
+
+-> We can use terraform state mv command to rename a particular resource.
+
+--original-code---
+resource "azurerm_virtual_network" "old_name"{
+ name = "my-vnet"
+ address_space = ["10.0.0.0/16]
+ location = "west-europe"
+ resource_group_name = "my-resource-name"
+}
+
+--updated code---
+
+resource "azurerm_virtual_network" "new_name"{
+ name = "my-vnet"
+ address_space = ["10.0.0.0/16]
+ location = "west-europe"
+ resource_group_name = "my-resource-name"
+}
+
+terraform state mv "azurerm_virtual_network.old_name" "azurerm_virtual_network.new_name"
+terraform plan & apply
+
+35. lifecycle block in terraform?
+
+->lifecycle is a nested block that can appear within a resource block. The lifecycle block and its contents are meta-arguments, available for all resource blocks regardless of type.
+
+The arguments available within a lifecycle block are create_before_destroy, prevent_destroy, ignore_changes, and replace_triggered_by.
+
+resource "azurerm_resource_group" "example" {
+  # ...
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+36. What is feature block in terraform?
+
+-> In terraform the features block is used within certain provider configurations to specify provider specific settings or to enable expermintal features.
+
+provider "azurerm"{
+
+ features{
+  virtual_machine{
+   delete_os_disk_on_deletion= true
+   }
+   }
+
+}
+
+37. Terraform command to remove resource from terraform state.
+
+-> terraform state rm azurerm_virtual_machine.my_machine
+
+38. Type of blob storage in azure.
+
+-> Azure Storage supports three types of blobs:
+
+Block blobs : store text and binary data. Block blobs are made up of blocks of data that can be managed individually. Block blobs can store up to about 190.7 TiB.
+
+Append blobs :  are made up of blocks like block blobs, but are optimized for append operations. Append blobs are ideal for scenarios such as logging data from virtual machines.
+
+Page blobs : store random access files up to 8 TiB in size. Page blobs store virtual hard drive (VHD) files and serve as disks for Azure virtual machines. For more information about page blobs, see Overview of Azure page blobs
+
+39. How to delete multiple images & container in docker.
+
+-> docker imgaes (list images)
+-> docker rmi <image id> ..... (delete multiple images)
+-> docker rmi $(docker images -q)
+-> docker ps -a (list running container)
+-> docker rm contaier-id
+-> docker container prune (remove all stopped container)
+
+40. What is controller in k8s?
+
+->In Kubernetes, a **Controller** is a control loop that continuously monitors the state of the cluster and ensures that the desired state matches the actual state. If the actual state deviates (e.g., a pod crashes or a node goes offline), the controller takes corrective actions to reconcile the difference, such as restarting pods or creating new resources.
+
+### **Types of Controllers in Kubernetes**
+Here are some of the most common controllers used in Kubernetes:
+### 1. **ReplicationController**
+- Ensures a specified number of **pod replicas** are running at any given time.
+- If a pod fails, the controller will create a new one to replace it.
+### 2. **ReplicaSet**
+- A newer version of **ReplicationController** with more flexible selectors.
+- Ensures a specified number of replicas are running.
+### 3. **Deployment**
+- The most common controller used for **managing stateless applications**.
+- Provides rolling updates,. rollbacks, and declarative updates to pods and ReplicaSets.
+### 4. **StatefulSet**
+- Manages **stateful applications** such as databases.
+- Provides guarantees around **pod identity and ordering** (e.g., pod names are persistent and ordered).
+### 5. **DaemonSet**
+- Ensures that **one instance of a pod runs on each node** in the cluster.
+- Useful for **logging agents, monitoring agents, or networking tools** (e.g., Fluentd, Prometheus Node Exporter).
+### 6. **Job**
+- Ensures that a **batch job completes successfully** (i.e., runs a task to completion).
+### 7. **CronJob**
+- **Schedules jobs to run periodically** based on a cron schedule (e.g., daily backups).
+
+
+41. Probes in k8s
+
+-> In k8s there are three type of probes.
+
+## **1. Liveness Probe**
+- **Purpose**: Checks if the container is alive or running.
+- **Action**: If the probe fails, Kubernetes restarts the container because it assumes the container has crashed or is in a non-recoverable state.
+**Explanation:**
+- **`httpGet`**: The probe sends an HTTP GET request to `/` on port 80.
+- **`initialDelaySeconds`**: The probe waits 5 seconds after the container starts before the first check.
+- **`periodSeconds`**: The probe checks the container every 10 seconds.
+
+## **2. Readiness Probe**
+- **Purpose**: Checks if the container is ready to **serve traffic**.
+- **Action**: If the probe fails, Kubernetes will stop sending traffic to this container, but it won’t restart it. This is useful when a container needs time to initialize or temporarily becomes unavailable.
+**Explanation:**
+- **`readinessProbe`**: Similar to the liveness probe, but it ensures the container is ready to serve requests.
+- When the probe fails, the container is **removed from the service endpoints** until it passes the probe again.
+
+## **3. Startup Probe**
+- **Purpose**: Used to check if the **container has finished starting**. This is useful when a container takes a long time to initialize. Once the startup probe succeeds, Kubernetes stops performing other probes (like liveness or readiness probes).
+- **Action**: If the probe fails, the container is restarted.
+**Explanation:**
+- **`startupProbe`**: Ensures the container has fully started before other probes begin.
+- **`failureThreshold`**: If the probe fails 3 times, Kubernetes restarts the container.
+
+
+42. Sidecar & Init container.
+
+-> ## **1. Sidecar Container**  
+A **sidecar container** runs alongside the main application container within the same Pod to provide additional functionality. Sidecar containers are commonly used for tasks like logging, monitoring, proxying, or configuration updates.  
+
+### **Use Case of Sidecar Containers**  
+- Add logging or monitoring agents (e.g., Fluentd).
+- Run proxies (e.g., Envoy, Istio sidecars for service mesh).
+- Perform data synchronization tasks between containers.
+- Share configuration files dynamically.
+
+## **2. Init Container**  
+An **init container** is a type of container that runs **before the main application container starts**. It ensures that preconditions are met before the main container can run (e.g., setting up configuration files, waiting for a service dependency, or loading secrets).
+
+### **Characteristics of Init Containers:**
+- They always **run to completion** (they must succeed for the main container to start).
+- **Run sequentially**: If there are multiple init containers, each runs one by one.
+- They can perform **one-time setup tasks** that don’t need to run continuously.
+
+
+
+43. Differnce between copy & add comand in dockerfile.
+
+-> The COPY instruction is straightforward and does exactly what its name implies: It copies files and directories from a source within the build context to a destination layer in the Docker image. This instruction can be used to copy both files and directories, and all paths on the host are relative to the root of the build context.
+
+-> The ADD instruction provides the same functionality that the COPY instruction does, but it also has additional functionality that, if misunderstood, can introduce complexity and potential security risks.
+
+Extended functionality: In addition to copying local files and directories from the build context, ADD provides the following advanced functionality:
+Handle URLs: When supplied as a source, the file referenced by a URL will be downloaded to the current Docker image layer at the supplied destination path.
+Extract archives: When supplied as a source, ADD will automatically unpack and expand archives to the current Docker image layer at the supplied destination path.
+
+44. If an application endpoint is not accessible that is deployed on aks then what we need to check.
+
+-> If an endpoint on **Azure Kubernetes Service (AKS)** is not accessible, there could be several underlying issues. Here are the key areas you should check systematically to troubleshoot the issue:
+
+### 1. **Pod and Service Health**  
+   - **Check Pods**: Ensure the pods are running correctly.
+     ```bash
+     kubectl get pods -A -o wide
+     kubectl describe pod <pod-name>
+     ```
+     Look for any errors, restarts, or crash loops.
+
+   - **Check Service**: Verify the corresponding Kubernetes Service is correctly exposing the pods.
+     ```bash
+     kubectl get svc -A
+     kubectl describe svc <service-name>
+     ```
+     Ensure the service type (ClusterIP, NodePort, LoadBalancer) is configured correctly.
+
+### 2. **Ingress/Load Balancer Configuration**  
+   - **Ingress Controller Status**: If you are using an Ingress, make sure it is correctly configured.
+     ```bash
+     kubectl get ingress -A
+     kubectl describe ingress <ingress-name>
+     ```
+     Ensure the Ingress points to the correct backend service and routes.
+
+   - **Load Balancer IP**: For services of type `LoadBalancer`, verify the external IP has been assigned.
+     ```bash
+     kubectl get svc -A
+     ```
+     If pending, check Azure Load Balancer configurations and quotas.
+
+### 3. **DNS and Networking Issues**  
+   - **DNS Resolution**: If accessing the service by name, ensure the DNS resolution is working properly.
+     ```bash
+     kubectl exec -it <pod> -- nslookup <service-name>
+     ```
+     Also, ensure Azure DNS configurations are correct for any external domains.
+
+   - **Network Policies**: Check if any **NetworkPolicy** is restricting traffic.
+     ```bash
+     kubectl get networkpolicy -A
+     ```
+
+   - **Firewall and NSGs**: Ensure no Network Security Group (NSG) or firewall rule in Azure is blocking traffic to the cluster or Load Balancer.
+
+### 4. **Application-Level Logs**  
+   - **Pod Logs**: Check the logs of the relevant pods to see if the application is behaving correctly.
+     ```bash
+     kubectl logs <pod-name> --tail=50 -f
+     ```
+
+   - **Ingress Logs**: If using an Ingress, look at the Ingress controller logs (e.g., NGINX) for any errors.
+
+### 5. **Service Binding and Ports**  
+   - **Port Mismatch**: Ensure that the service is exposing the correct ports and the pod is listening on them. 
+     ```yaml
+     ports:
+     - name: http
+       port: 80
+       targetPort: 8080
+     ```
+   - Verify whether there is a port mismatch between the **targetPort** and the pod's listening port.
+
+### 6. **Cluster-Level Issues**  
+   - **Node Health**: Ensure all AKS nodes are running and healthy.
+     ```bash
+     kubectl get nodes -o wide
+     kubectl describe node <node-name>
+     ```
+
+   - **Cluster Autoscaler or Node Pools**: Ensure that there are enough resources (CPU/Memory) available to run the workloads.
+
+### 7. **RBAC and Authorization**  
+   - **Check RoleBindings/ClusterRoleBindings**: Verify that the necessary permissions are granted.
+     ```bash
+     kubectl get rolebindings,clusterrolebindings -A
+     ```
+
+### 8. **Azure Monitor and Insights**  
+   - Use **Azure Monitor** to see if any logs or alerts show networking, load balancer, or resource issues.
+   - Check **Container Insights** for more information on pod health and performance metrics.
+
+### 9. **Routing Issues with Azure Application Gateway (if applicable)**  
+   - If using **Azure Application Gateway** as the Ingress, ensure that the backend pool is healthy, and the routing rules are correct.
+
+### 10. **Time and Resource Quotas**  
+   - Verify any limits/quotas on your AKS resources or Azure subscription.
+     ```bash
+     kubectl describe resourcequotas -A
+	 
+45. How to change any resorce in k8s deployment file without editing it from command line.
+
+-> kubectl set image deployment/deployment-name my-container=new-image
+-> kubectl patch deployment deployment-name -p '{"spec": {"template" : {"spec": {"containers": [{"name": "my-container", "image": "new-image"}]}}}}'
+
+46. What branching strategy you follow in your project.
+
+-> Basically we have release like Bundle release, Minor release & Hotfix release, so for each release a new release branch is created from master branch and from that release branch developer create a feature branch where they work on their functionality. After working on feature branch they raise a pull request to release branch which is reviewed and approved by team lead.So after merging changes to release branch we deploy it from lower to higher environment and on successful release we again merger the release branch to master branch.
+
+-> Hotfix branch is created if we have some urgent bug that need to be fixed in production , so hotfix branch created from master and then deployed in production directly without going with normal process from lower to higher environment.
+
+47. If image creation from dockerfile is failing, how you troubleshoot and find which layer is failing.
+
+-> Troubleshooting a failing Docker image build can be tricky, especially if the error is in a specific layer. Here’s how you can systematically identify and resolve the issue: 
+
+### 1. **Read the Error Message**
+   - The build process will typically fail with an error message pointing to the specific line in the Dockerfile.
+   - Look at the logs to identify which step or layer caused the failure.
+
+### 2. **Add Debugging Steps**
+   - To find out which layer is failing, break the Dockerfile into smaller parts and build it step by step:
+     ```bash
+     docker build --no-cache --progress=plain .
+     ```
+     - `--no-cache`: Ensures every layer is rebuilt.
+     - `--progress=plain`: Provides detailed logs of each step.
+
+### 3. **Build Incrementally**
+   - Manually run the commands in the Dockerfile to isolate the issue:
+     ```bash
+     docker run -it --rm base_image
+     ```
+     Replace `base_image` with the image used in the `FROM` instruction. Then, try running the commands one by one from your Dockerfile.
+
+### 4. **Use `docker history`**
+   - If the image partially builds, use `docker history` to inspect each layer:
+     ```bash
+     docker history image_name
+     ```
+     This command will show the command used for each layer, which can help pinpoint the problematic layer.
+
+### 5. **Check for Common Issues**
+   - **Syntax Errors**: A small typo in a `RUN`, `COPY`, or other instructions can cause failures.
+   - **Missing Files**: Ensure files referenced in `COPY` or `ADD` exist in the build context.
+   - **Network Issues**: If the build involves downloading dependencies, check your network and proxy settings.
+   - **Permissions**: Ensure proper file permissions if files are being copied or accessed.
+
+### 6. **Enable Verbose Logging**
+   - You can increase the verbosity to get more details about the build process:
+     ```bash
+     docker build --progress=plain .
+     ```
+
+### 7. **Test Layers in Isolation**
+   - Use intermediate containers to test each layer:
+     ```bash
+     docker build --target <intermediate-stage-name> -t debug-image .
+     ```
+     This builds up to a specific stage in a multi-stage Dockerfile.
+
+### 8. **Review Dockerfile Best Practices**
+   - Use `&&` in `RUN` instructions to combine commands. If one command fails, it’s easier to identify.
+   - Example:
+     ```dockerfile
+     RUN apt-get update && apt-get install -y some-package && \
+         rm -rf /var/lib/apt/lists/*
+     ```
+
+
+
+
+
+
+
+
+
+
+

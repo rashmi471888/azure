@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aai-api-#{env}#
+spec:
+  selector:
+    matchLabels:
+      app: aai-api-#{env}#
+  replicas: #{app-replicas}#
+  template:
+    metadata:
+      labels:
+        app: aai-api-#{env}#
+    spec:
+      containers:
+      - name: aai-api-#{env}#
+        image: #{registry}#/aai-api:#{Imageversion}#
+        envFrom:
+        - configMapRef:
+            name: env-config
+        env:
+        - name: ENV
+          value: "#{env}#"
+        - name: FLIGHT_PORT
+          value: "#{FLIGHT_PORT}#"
+        - name: SCHEME
+          value: "#{SCHEME}#"
+        - name: DREMIO_USER
+          value: "#{DREMIO_USER}#"
+        - name: DREMIO_PASSWORD
+          value: "#{DREMIO_PASSWORD}#"
+        - name: DREMIO_HOST
+          value: "#{DREMIO_HOST}#"
+        - name: ASSORTMENTAI_CLIENT_ID
+          value: "#{ASSORTMENTAI_CLIENT_ID}#"
+        - name: ASSORTMENTAI_CLIENT_SECRET
+          value: "#{ASSORTMENTAI_CLIENT_SECRET}#"
+        - name: ASSORTMENTAI_JWT_HASH_KEY
+          value: "#{ASSORTMENTAI_JWT_HASH_KEY}#"
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            memory: "#{MEMORY}#"
+            cpu: "#{CPU}#"
+          requests:
+            memory: "#{MEMORY}#"
+            cpu: "#{CPU}#"
+      imagePullSecrets:
+       - name: #{secrets}#
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aai-api-svc-#{env}#
+  annotations:
+    service.beta.kubernetes.io/azure-load-balancer-internal: "true" 
+spec:
+  type: LoadBalancer
+  loadBalancerIP: #{svc-lb-ip}#
+  ports:
+  - port: 80
+  selector:
+    app: aai-api-#{env}#
+---

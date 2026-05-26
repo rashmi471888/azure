@@ -1,0 +1,123 @@
+### **1. Azure Boards**
+Used for work tracking, planning, and collaboration:
+- **Work Items**: Epics, Features, User Stories, Tasks, Bugs, Issues.
+- **Backlogs**: Product backlog, Iteration backlog.
+- **Kanban Boards**: Workflow visualization for tracking progress.
+- **Sprints**: Time-boxed iterations for Scrum teams.
+- **Queries**: Custom filters for work items.
+- **Dashboards**: Visual tools for tracking progress (burndown charts, velocity).
+
+---
+
+### **2. Azure Repos**
+Version control for code:
+- **Git Repositories**: Distributed version control system for managing code.
+- **TFVC (Team Foundation Version Control)**: Centralized version control.
+- **Branch Policies**: Rules for pull requests, code reviews, and merges.
+- **Pull Requests**: Collaboration on code changes before merging.
+- **Code Search**: Search across repositories for code references.
+
+---
+
+### **3. Azure Pipelines**
+CI/CD (Continuous Integration and Continuous Delivery) for automating builds and deployments:
+- **Build Pipelines**: Automate code compilation and testing.
+- **Release Pipelines**: Automate deployment to staging and production environments.
+- **Pipeline Templates**: Reusable YAML templates for pipelines.
+- **Integration**: Supports multiple languages and frameworks (e.g., .NET, Python, Node.js, Java).
+- **Environments**: Define stages and conditions for deployments.
+- **Artifacts**: Packages generated during builds (e.g., NuGet, npm).
+
+---
+
+### **4. Azure Test Plans**
+Testing and quality assurance tools:
+- **Test Suites**: Groups of test cases (static or query-based).
+- **Test Cases**: Individual tests with steps and expected outcomes.
+- **Manual Testing**: Tools for executing and tracking manual test cases.
+- **Exploratory Testing**: Unscripted testing with session tracking.
+- **Test Configurations**: Variations for different test environments (e.g., browsers, devices).
+
+---
+
+### **5. Azure Artifacts**
+Package management for dependencies:
+- **Feeds**: Private package feeds for sharing dependencies across teams.
+- **Package Types**: Supports NuGet, npm, Maven, Python, and Universal Packages.
+- **Retention Policies**: Automatically clean up unused versions of packages.
+
+---
+
+### **6. Azure DevOps Projects**
+Pre-configured environments for getting started quickly:
+- Integrates Azure Boards, Repos, Pipelines, and other services.
+- Includes sample applications and pipelines.
+
+---
+
+### **7. Service Connections**
+Securely connect Azure DevOps with external services or resources:
+- Examples: Azure subscriptions, Docker registries, GitHub, Kubernetes clusters.
+
+---
+
+### **8. Agent Pools**
+Agents execute pipeline jobs:
+- **Microsoft-hosted Agents**: Ready-to-use virtual machines hosted by Microsoft.
+- **Self-hosted Agents**: Custom machines for running pipeline jobs.
+
+---
+
+### **9. Security and Permissions**
+Access and security management:
+- **Access Levels**: Basic, Stakeholder, and Visual Studio Subscriber roles.
+- **Groups**: Teams, project contributors, administrators, etc.
+- **Policies**: Branch policies, approvals, and permissions.
+
+---
+
+### **10. Extensions**
+Customizable tools and integrations available in the **Azure DevOps Marketplace**:
+- Examples: Slack, Jira, SonarQube, WhiteSource, and GitHub integrations.
+
+---
+
+### **11. Project Management**
+Support for team collaboration and planning:
+- **Teams**: Group of people working on shared backlogs, sprints, and boards.
+- **Areas**: Organize work items by functional area.
+- **Iterations**: Time periods for sprints or milestones.
+
+---
+
+### **12. Reporting and Analytics**
+Insights into projects and performance:
+- **Dashboards**: Visual representations of progress.
+- **Analytics Views**: Predefined or custom views for reporting.
+- **Widgets**: Add burndown charts, velocity charts, etc., to dashboards.
+
+---
+
+### **13. Notifications**
+Alerts for work item changes, pipeline events, code pushes, or deployments.
+
+---
+
+### **14. Integrations**
+Seamlessly connect Azure DevOps with external tools:
+- **GitHub**: Sync repos, link pull requests, and manage pipelines.
+- **Slack/Microsoft Teams**: Notifications and updates.
+- **Terraform/Ansible**: Infrastructure as Code tools.
+- **Kubernetes**: Manage containerized workloads.
+
+---
+
+### **15. Global Configurations**
+- **Process Templates**: Agile, Scrum, CMMI, or custom workflows for tracking work.
+- **Repositories Policies**: Security and compliance rules for repositories.
+- **Work Item Customization**: Add custom fields or states.
+- **Environment Approvals**: Multi-stage release gating.
+
+---
+
+Azure DevOps is a fully integrated platform, offering flexibility for teams of all sizes and across industries. Whether you use it for Agile project management, CI/CD pipelines, or quality testing, it provides a comprehensive suite of tools to manage the software development lifecycle.

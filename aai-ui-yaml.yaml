@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aai-ui-#{env}#
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aai-ui-#{env}#
+  template:
+    metadata:
+      labels:
+        app: aai-ui-#{env}#
+    spec:
+      containers:
+      - name: aai-ui-#{env}#
+        image: #{registry}#/aai-ui:#{Imageversion}#
+        envFrom:
+        - configMapRef:
+            name: env-config 
+        env:
+        - name: env
+          value: "#{env}#"
+        - name: AAI_SQL_DATABASE
+          value: "#{AAI_SQL_DATABASE}#"
+        - name: AAI_SQL_HOST
+          value: "#{AAI_SQL_HOST}#"
+        - name: AAI_SQL_DRIVER
+          value: "#{AAI_SQL_DRIVER}#"
+        - name: AAI_SQL_USERNAME
+          value: "#{AAI_SQL_USERNAME}#"                       
+        - name: AAI_SQL_PASSWORD
+          value: "#{AAI_SQL_PASSWORD}#"
+        resources:
+          requests:
+            cpu: "#{cpu}#"
+            memory: "#{memory}#"
+          limits:
+            cpu: "#{cpu}#"
+            memory: "#{memory}#"
+               
+        ports:
+        - containerPort: 8501
+      imagePullSecrets:
+       - name: #{secrets}#
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aai-ui-svc-#{env}#
+  annotations:
+    service.beta.kubernetes.io/azure-load-balancer-internal: "true"  
+spec:
+  type: LoadBalancer
+  loadBalancerIP: #{svc-lb-ip}#
+  ports:
+  - port: 80
+    targetPort: 8501
+  selector:
+    app: aai-ui-#{env}#
+---    
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: aai-ui-ingress-#{env}#
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  tls:
+  - hosts:
+    - #{tls-host-name}#
+    secretName: #{tls-secret-name}#
+  rules:
+  - host: #{tls-host-name}#
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: aai-ui-svc-#{env}#
+            port: 
+              number: 80

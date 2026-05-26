@@ -1,0 +1,165 @@
+Azure offers a variety of networking components that help connect, secure, and manage resources within the Azure cloud. These components are crucial for enabling communication between resources, securing access, and controlling the flow of traffic within and outside of Azure. Here's an overview of the key networking components in Azure, particularly focusing on how they relate to a resource such as a **Virtual Machine (VM)**.
+
+### 1. **Virtual Network (VNet)**
+
+A **Virtual Network (VNet)** is the foundation of Azure networking. It's a logically isolated network within the Azure cloud that allows you to create your own private network for your Azure resources.
+
+- **Purpose**: To provide a secure, isolated network for resources like VMs, web apps, and databases.
+- **Subnets**: VNets can be divided into smaller sub-networks, called **subnets**, allowing you to organize and isolate resources.
+- **Address Space**: Each VNet has a range of private IP addresses defined by a CIDR block (e.g., `10.0.0.0/16`).
+- **Scope**: VNets are scoped at the **regional** level and span an entire Azure region.
+
+### Example with a VM:
+- A VM in Azure will be placed inside a VNet. The VM can have private IP addresses from the VNet's address space, which enables it to communicate with other resources within the same VNet.
+
+### 2. **Subnets**
+
+Subnets are segments within a VNet. They allow you to organize your VNet and improve network security by separating resources into different groups.
+
+- **Purpose**: To isolate different types of resources within a VNet (e.g., frontend VMs in one subnet, backend VMs in another).
+- **Network Security Group (NSG)**: Each subnet can have its own **NSG** to control inbound and outbound traffic.
+- **Routing**: Azure automatically creates routing between subnets, but you can override it with custom routes.
+
+### Example with a VM:
+- You might place your VM in a subnet named `web-subnet`, which only contains web servers, and have another subnet for database servers.
+
+### 3. **Public IP Address**
+
+A **Public IP Address** is an internet-routable address assigned to Azure resources like VMs or Load Balancers, making them accessible from outside the Azure VNet.
+
+- **Purpose**: To expose resources like VMs or Load Balancers to the internet.
+- **Dynamic/Static IP**: Public IP addresses can be dynamic (changing) or static (reserved and never changing).
+- **Assignment**: Public IP addresses can be associated with VMs, Virtual Network Gateways, or Azure Load Balancers.
+
+### Example with a VM:
+- You can assign a **Public IP** to a VM’s **network interface (NIC)**, making it accessible via the internet for SSH (Linux) or RDP (Windows).
+
+### 4. **Private IP Address**
+
+A **Private IP Address** is an internal, non-internet-routable IP assigned to resources within a VNet.
+
+- **Purpose**: To enable communication between Azure resources inside the VNet, without exposing them to the internet.
+- **Static/Dynamic**: Like public IPs, private IPs can also be static or dynamic.
+
+### Example with a VM:
+- Every VM has a private IP that allows it to communicate with other resources within the VNet, like databases or other VMs, without going through the internet.
+
+### 5. **Network Security Group (NSG)**
+
+A **Network Security Group (NSG)** is a security component that acts as a firewall. It contains a set of rules to control incoming and outgoing traffic to resources, based on IP addresses, ports, and protocols.
+
+- **Purpose**: To enforce security by allowing or denying specific types of network traffic.
+- **Rules**: NSG rules are based on source/destination IP, port, and protocol (e.g., TCP, UDP).
+- **Assignment**: You can assign an NSG to individual **NICs** or entire **subnets**.
+
+### Example with a VM:
+- You can configure an NSG to allow SSH (port 22) or RDP (port 3389) to your VM, while blocking all other inbound traffic.
+
+### 6. **Network Interface (NIC)**
+
+A **Network Interface (NIC)** connects a VM to a VNet. Each VM needs at least one NIC to communicate over the network.
+
+- **Purpose**: To provide network connectivity for VMs.
+- **Multiple NICs**: A VM can have multiple NICs, especially in scenarios where it needs to be part of multiple networks.
+- **IP Addresses**: The NIC can have both private and public IP addresses.
+
+### Example with a VM:
+- A VM has at least one NIC that attaches it to a subnet in the VNet. This NIC will have a private IP (for internal communication) and optionally a public IP (for external access).
+
+### 7. **Azure Load Balancer**
+
+An **Azure Load Balancer** distributes incoming traffic among multiple VMs or services, ensuring high availability and scalability.
+
+- **Purpose**: To distribute traffic across multiple resources like VMs or services based on rules (Layer 4 - TCP/UDP).
+- **Types**: 
+  - **Public Load Balancer**: For distributing traffic from the internet.
+  - **Internal Load Balancer**: For distributing traffic within the VNet.
+  
+### Example with a VM:
+- If you have multiple VMs running the same application, a **Public Load Balancer** can distribute incoming traffic to these VMs, balancing the load between them.
+
+### 8. **Azure Application Gateway**
+
+The **Azure Application Gateway** is a Layer 7 load balancer, primarily used for HTTP/HTTPS traffic. It provides advanced routing features like SSL termination, URL-based routing, and Web Application Firewall (WAF).
+
+- **Purpose**: To distribute web traffic based on URL paths, provide SSL offloading, and protect against web attacks.
+- **Web Application Firewall (WAF)**: It has built-in security features to protect web apps from common threats.
+
+### Example with a VM:
+- If your VM is running a web application, you can use **Application Gateway** to direct incoming traffic based on the URL (e.g., different URLs for different microservices).
+
+### 9. **Azure DNS**
+
+**Azure DNS** is a service that allows you to host your domain name system (DNS) domains in Azure, resolving domain names to IP addresses for resources.
+
+- **Purpose**: To manage and resolve DNS records (like A records, CNAME records) for your services.
+- **Private DNS Zones**: You can create private DNS zones that are only accessible within a VNet.
+
+### Example with a VM:
+- You can use **Azure DNS** to resolve your custom domain name (e.g., `www.example.com`) to the public IP of a VM running your website.
+
+### 10. **Azure Virtual Network Peering**
+
+**VNet Peering** connects two Azure VNets, allowing them to communicate with each other as if they were part of the same network.
+
+- **Purpose**: To allow VMs in different VNets to communicate with low latency and high bandwidth, as if they were in the same VNet.
+- **Global Peering**: You can peer VNets across different regions.
+
+### Example with a VM:
+- If your VM is in **VNet A** and you have a database in **VNet B**, you can use **VNet Peering** to allow the VM to securely communicate with the database across VNets.
+
+### 11. **Azure VPN Gateway**
+
+**VPN Gateway** provides secure connectivity between your on-premises network and Azure VNets using site-to-site or point-to-site VPNs.
+
+- **Purpose**: To create secure tunnels between Azure and on-premises or other cloud networks.
+- **Types**: 
+  - **Site-to-Site VPN**: Connects entire on-premises networks to Azure VNets.
+  - **Point-to-Site VPN**: Connects individual clients or devices to Azure.
+
+### Example with a VM:
+- If you have on-premises resources (e.g., a corporate network) that need to securely access a VM in Azure, you would set up a **VPN Gateway** for secure communication over a VPN tunnel.
+
+### 12. **Azure ExpressRoute**
+
+**ExpressRoute** provides a private, dedicated connection between your on-premises infrastructure and Azure, bypassing the public internet for better security, reliability, and performance.
+
+- **Purpose**: To establish a high-performance, secure, and private connection between on-premises data centers and Azure.
+- **Comparison to VPN**: ExpressRoute is a physical, private connection, whereas VPN uses the internet.
+
+### Example with a VM:
+- If you need a high-throughput, low-latency connection between your on-premises data center and a VM in Azure, you would use **ExpressRoute** for direct connectivity.
+
+### 13. **Azure Traffic Manager**
+
+**Azure Traffic Manager** is a global DNS-based traffic routing service that directs users to different Azure endpoints based on rules like geographic location or performance.
+
+- **Purpose**: To route traffic to the nearest or most available Azure region.
+- **Routing Methods**: Includes priority-based, performance-based, geographic-based, and multi-region failover routing.
+
+### Example with a VM:
+- If you have VMs running the same application in multiple regions, **Traffic Manager** can route users to the nearest VM for the best performance.
+
+---
+
+### Summary of Azure Networking Components:
+
+| **Component**                  | **Description**                                                                      |
+|---------------------------------|--------------------------------------------------------------------------------------|
+| **VNet**                        | Private network for resources in Azure.                                              |
+| **Subnets**                     | Segments within a VNet to isolate and organize resources.                            |
+| **Public IP Address**           |
+
+ Exposes resources like VMs to the internet.                                          |
+| **Private IP Address**          | Internal IP address for communication within the VNet.                               |
+| **Network Security Group (NSG)**| Firewall rules to control inbound/outbound traffic for subnets or NICs.              |
+| **NIC (Network Interface)**     | Connects VMs to the network and assigns IP addresses.                                |
+| **Azure Load Balancer**         | Distributes traffic across multiple VMs or services (Layer 4).                       |
+| **Azure Application Gateway**   | Layer 7 load balancer for HTTP/HTTPS traffic with advanced routing and WAF features. |
+| **Azure DNS**                   | Manages DNS records for resolving domain names to IPs.                               |
+| **VNet Peering**                | Connects VNets, allowing resources to communicate across them.                       |
+| **VPN Gateway**                 | Provides secure tunnels between on-premises and Azure.                              |
+| **ExpressRoute**                | Private, high-performance connection between on-premises and Azure.                  |
+| **Traffic Manager**             | Routes traffic globally to the nearest or most available Azure endpoint.             |
+
+These networking components work together to ensure that Azure resources like Virtual Machines can securely communicate with each other, the internet, and on-premises infrastructure.

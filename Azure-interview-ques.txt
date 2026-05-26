@@ -1,0 +1,359 @@
+### **Azure Basics**
+
+1. **What is Microsoft Azure, and why is it used?**  
+   Microsoft Azure is a cloud computing platform providing a range of services like computing, storage, networking, analytics, and more. It is used for building, deploying, and managing applications in the cloud, offering:
+   - Scalability
+   - High availability
+   - Cost efficiency
+   - Security compliance
+
+2. **What are the different types of services offered by Azure?**  
+   - **IaaS (Infrastructure as a Service)**: Virtual Machines, Networking, Storage.  
+   - **PaaS (Platform as a Service)**: Azure App Service, Azure SQL Database.  
+   - **SaaS (Software as a Service)**: Office 365, Dynamics 365.  
+   - **Serverless**: Azure Functions, Logic Apps.
+
+---
+
+### **Azure Resource Management**
+
+3. **What is Azure Resource Manager (ARM)?**  
+   ARM is the deployment and management service for Azure resources. It provides:  
+   - A unified interface for managing resources (via Azure Portal, CLI, or PowerShell).  
+   - Resource grouping for easier management.  
+   - Declarative templates (ARM Templates or Bicep) for automation.
+
+4. **What are Resource Groups in Azure? Why are they important?**  
+   - A **Resource Group** is a container for resources like VMs, databases, and virtual networks.  
+   - It simplifies resource management by grouping related resources for a specific project.  
+   - Resource groups enable role-based access control (RBAC) and simplify cost tracking.
+
+---
+
+### **Azure Compute**
+
+5. **Explain the difference between Azure Virtual Machines and Azure App Services.**  
+   - **Azure Virtual Machines**: Provide full control over an OS and the underlying hardware. Ideal for legacy applications or workloads requiring custom configurations.  
+   - **Azure App Services**: A PaaS offering to host web apps, RESTful APIs, and mobile apps without managing the underlying infrastructure.
+
+6. **What is Azure Virtual Machine Scale Set (VMSS)?**  
+   VMSS allows the deployment and management of a group of identical, load-balanced VMs.  
+   - It supports autoscaling based on demand.  
+   - Ideal for workloads like web hosting, containerized services, or high-performance computing.
+
+7. **What are Azure Availability Sets?**  
+   Availability Sets ensure that VMs are distributed across multiple fault domains and update domains to improve uptime.  
+   - Fault Domain: A group of resources that share a common power source or network switch.  
+   - Update Domain: A logical group of resources that are updated together during maintenance.
+
+---
+
+### **Azure Networking**
+
+8. **What is an Azure Virtual Network (VNet)?**  
+   Azure VNet is a logical isolation of the Azure cloud that allows communication between Azure resources and on-premises systems.  
+   - Supports subnets, NSGs, VPN gateways, and peering.  
+   - Provides control over IP address ranges, routing, and security.
+
+9. **What is Azure Load Balancer?**  
+   Azure Load Balancer distributes incoming network traffic across multiple VMs.  
+   - **Public Load Balancer**: Handles external traffic.  
+   - **Internal Load Balancer**: Handles internal traffic within a VNet.
+
+10. **What is Azure Application Gateway? How is it different from a Load Balancer?**  
+    Azure Application Gateway is a Layer 7 load balancer with additional features like:  
+    - URL-based routing  
+    - SSL termination  
+    - Web Application Firewall (WAF)
+
+    **Key Difference**: Load Balancer works at Layer 4 (Transport Layer), while Application Gateway works at Layer 7 (Application Layer).
+
+---
+
+### **Azure Storage**
+
+11. **What are the storage services available in Azure?**  
+    - **Blob Storage**: Stores unstructured data (e.g., images, videos).  
+    - **File Storage**: Managed file shares (SMB).  
+    - **Queue Storage**: Messaging between application components.  
+    - **Table Storage**: Key-value NoSQL data.
+
+12. **Explain the redundancy options available in Azure Storage.**  
+    - **LRS (Locally Redundant Storage)**: Data is replicated within a single datacenter.  
+    - **ZRS (Zone-Redundant Storage)**: Data is replicated across availability zones.  
+    - **GRS (Geo-Redundant Storage)**: Data is replicated across regions.  
+    - **RA-GRS (Read-Access Geo-Redundant Storage)**: Same as GRS with read access to the secondary region.
+
+13. **What is Azure Data Lake?**  
+    Azure Data Lake is a scalable and secure data storage service designed for big data analytics.  
+    - Supports hierarchical data organization.  
+    - Ideal for use with Azure Synapse, HDInsight, or Databricks.
+
+---
+
+### **Azure Identity and Security**
+
+14. **What is Azure Active Directory (AAD)?**  
+    Azure AD is a cloud-based identity and access management service.  
+    - Enables Single Sign-On (SSO) for apps.  
+    - Provides multi-factor authentication (MFA).  
+    - Integrates with on-prem AD using Azure AD Connect.
+
+15. **How do you secure access to Azure resources?**  
+    - Use **RBAC (Role-Based Access Control)** to grant specific permissions.  
+    - Implement **MFA** for critical accounts.  
+    - Use **Azure Policy** to enforce governance.
+
+16. **What is the difference between Azure AD and Azure RBAC?**  
+    - **Azure AD** manages user identities and access to applications.  
+    - **Azure RBAC** manages permissions to Azure resources.
+
+---
+
+### **Azure DevOps and CI/CD**
+
+17. **What is Azure DevOps?**  
+    Azure DevOps is a set of tools for CI/CD, project management, and version control.  
+    - **Azure Pipelines**: CI/CD automation.  
+    - **Azure Repos**: Git repositories.  
+    - **Azure Boards**: Agile project management.  
+    - **Azure Artifacts**: Package management.
+
+18. **How do you implement CI/CD in Azure DevOps?**  
+    - Use **Pipelines** to define CI/CD workflows in YAML.  
+    - Example YAML file for deploying an Azure App Service:
+      ```yaml
+      trigger:
+        branches:
+          include:
+            - main
+
+      jobs:
+      - job: BuildAndDeploy
+        pool:
+          vmImage: 'ubuntu-latest'
+
+        steps:
+        - task: UseDotNet@2
+          inputs:
+            packageType: 'sdk'
+            version: '6.x'
+
+        - script: dotnet build
+          displayName: 'Build Project'
+
+        - task: AzureWebApp@1
+          inputs:
+            azureSubscription: '<Service Connection>'
+            appName: '<App Name>'
+            package: '$(Build.ArtifactStagingDirectory)/*.zip'
+      ```
+
+---
+
+### **Azure Databases**
+
+19. **What database services are available in Azure?**  
+    - **Azure SQL Database**: Managed relational database service.  
+    - **Cosmos DB**: Globally distributed NoSQL database.  
+    - **Azure Database for MySQL/PostgreSQL/MariaDB**: Managed open-source databases.  
+    - **Azure Synapse**: For data warehousing and big data analytics.
+
+20. **How does Azure Cosmos DB ensure consistency?**  
+    Azure Cosmos DB offers five consistency models:  
+    - **Strong**: Most consistent but highest latency.  
+    - **Bounded Staleness**: Guarantees reads lag behind writes by a time or versions.  
+    - **Session**: Consistent within a session.  
+    - **Consistent Prefix**: Guarantees reads never see out-of-order writes.  
+    - **Eventual**: Lowest latency but least consistent.
+
+---
+
+### **Real-World Azure Scenarios**
+
+21. **How do you ensure high availability for Azure Virtual Machines?**  
+    - Deploy VMs in an **Availability Set** or across **Availability Zones**.  
+    - Use **Load Balancers** to distribute traffic.  
+    - Use **Azure Site Recovery** for disaster recovery.
+
+22. **How do you monitor Azure resources?**  
+    - Use **Azure Monitor** to collect and analyze telemetry.  
+    - Use **Log Analytics** to query logs.  
+    - Enable **Application Insights** for performance monitoring of applications.
+
+23. **What are Azure Policies, and how are they used?**  
+    Azure Policies enforce governance by defining rules to evaluate resource compliance.  
+    - Example: Enforcing tagging for all resources.
+      ```json
+      {
+        "policyRule": {
+          "if": {
+            "field": "tags",
+            "exists": "false"
+          },
+          "then": {
+            "effect": "deny"
+          }
+        }
+      }
+      ```
+
+---
+
+### **Azure Advanced**
+
+24. **What is Azure Kubernetes Service (AKS)?**  
+    AKS is a managed Kubernetes service in Azure that simplifies container orchestration.  
+    - Supports auto-scaling and self-healing.  
+    - Integrates with Azure Monitor for performance tracking.
+
+25. **What is Azure Traffic Manager?**  
+    Azure Traffic Manager is a DNS-based traffic routing service that distributes traffic across multiple endpoints globally.  
+    - Routing methods: Priority, Weighted, Geographic, Multivalue, Performance.
+	
+-----------------------------------------------------------------------------------------------
+
+### **General Questions:**
+#### 1. What is Azure App Service?
+**Answer:**  
+Azure App Service is a fully managed platform for building, deploying, and scaling web applications, APIs, and mobile backends. It supports multiple programming languages, including .NET, Java, Python, and PHP.
+
+#### 2. What are the types of Azure App Services?
+**Answer:**  
+Azure App Services include:
+- **Web Apps** (for hosting web applications)
+- **API Apps** (for hosting APIs)
+- **Mobile Apps** (for backend services for mobile applications)
+- **Logic Apps** (for workflow automation)
+
+#### 3. What is an App Service Plan in Azure?
+**Answer:**  
+An **App Service Plan** determines the **pricing tier**, **compute resources**, and **scalability** of an app. Apps in the same plan share resources, and you can choose different plans like Free, Basic, Standard, and Premium.
+
+---
+
+### **Deployment & CI/CD:**
+#### 4. How can you deploy an application to Azure App Service?
+**Answer:**  
+You can deploy an application using:
+- **Azure Portal** (Manual upload)
+- **Azure CLI / PowerShell**  
+- **Visual Studio / VS Code**  
+- **GitHub Actions / Azure DevOps**  
+- **FTP/SFTP**  
+- **Container Registry (Docker, Kubernetes)**  
+
+#### 5. What is a Deployment Slot in Azure App Services?
+**Answer:**  
+Deployment Slots allow you to create different environments (e.g., **staging, testing, production**) under the same App Service. You can swap slots to perform zero-downtime deployments.
+
+#### 6. How do you automate deployments in Azure?
+**Answer:**  
+You can use **Azure DevOps**, **GitHub Actions**, or **ARM/Bicep templates** for CI/CD automation. Azure Pipelines can automate build, test, and deployment.
+
+---
+
+### **Scaling & Performance:**
+#### 7. How do you scale an Azure App Service?
+**Answer:**  
+Azure App Services support:
+- **Vertical Scaling** (upgrading the App Service Plan to more powerful machines)
+- **Horizontal Scaling** (increasing the number of instances)
+- **Auto-scaling** based on CPU, memory, or custom metrics.
+
+#### 8. What is Azure Traffic Manager?
+**Answer:**  
+Azure Traffic Manager is a **global DNS load balancer** that routes traffic based on rules like latency, priority, or geographic location, improving performance and high availability.
+
+#### 9. How do you handle session state in Azure App Services?
+**Answer:**  
+Since App Services are stateless, you can handle sessions using:
+- **Azure Cache for Redis**
+- **SQL Database**
+- **Blob Storage**
+- **Sticky Sessions (ARR Affinity)**
+
+---
+
+### **Security & Networking:**
+#### 10. How do you secure an Azure App Service?
+**Answer:**  
+Security best practices include:
+- **Enabling HTTPS/TLS**
+- **Using Managed Identity for authentication**
+- **Enabling Application Gateway or Azure Front Door for DDoS protection**
+- **Using Private Endpoints for secure access**
+- **Implementing Role-Based Access Control (RBAC)**
+
+#### 11. What is Azure API Management (APIM)?  
+**Answer:**  
+Azure API Management is a **gateway** that helps **secure, monitor, and manage APIs**. It provides **rate limiting, authentication, caching, and analytics**.
+
+#### 12. How can you restrict access to an Azure App Service?  
+**Answer:**  
+You can restrict access using:
+- **IP Restrictions** (Whitelisting specific IPs)
+- **Azure Virtual Network (VNet) Integration**
+- **Private Endpoint**
+- **Azure Application Gateway with Web Application Firewall (WAF)**
+
+---
+
+### **Monitoring & Troubleshooting:**
+#### 13. How do you monitor an Azure App Service?  
+**Answer:**  
+You can use:
+- **Azure Monitor**
+- **Application Insights** (for performance and logs)
+- **Log Analytics**
+- **Diagnostics Settings**
+
+#### 14. What is Application Insights?  
+**Answer:**  
+Application Insights is an **APM (Application Performance Monitoring)** service that helps monitor **performance, dependencies, logs, and errors**.
+
+#### 15. How do you troubleshoot errors in Azure App Service?  
+**Answer:**  
+- **Check Application Logs** (Log Stream, Kudu)
+- **Use Application Insights**
+- **Enable Diagnostics Logging**
+- **Review Azure Monitor Metrics**
+- **Check Service Health & Resource Quotas**
+
+---
+
+### **Advanced Topics:**
+#### 16. What is Azure Functions, and how is it different from Azure App Service?  
+**Answer:**  
+Azure Functions is a **serverless compute** option that runs **event-driven** code without managing infrastructure. Unlike App Services, it scales dynamically and is cost-efficient for intermittent workloads.
+
+#### 17. What is Azure Front Door, and how does it compare to Azure Traffic Manager?  
+**Answer:**  
+Azure Front Door is a **global load balancer and web application firewall (WAF)** that routes traffic with **caching, acceleration, and security** features. Traffic Manager only provides **DNS-based load balancing**.
+
+#### 18. What is Kudu in Azure App Service?  
+**Answer:**  
+Kudu is a **deployment engine** for Azure App Service that provides:
+- **Access to deployment logs**
+- **Process Explorer for debugging**
+- **File System access via Kudu console**
+
+---
+
+### **Scenario-Based Questions:**
+#### 19. Your Azure Web App is running slow. How do you diagnose the issue?  
+**Answer:**  
+- Check **Azure Monitor Metrics** (CPU, Memory, Response Time)  
+- Enable **Application Insights** to analyze performance  
+- Review **Web Server Logs & Kudu Process Explorer**  
+- Use **Scaling (vertical or horizontal) if resources are insufficient**  
+- Optimize **database queries and caching**  
+
+#### 20. How do you migrate an on-premises application to Azure App Service?  
+**Answer:**  
+- Use **Azure Migrate** to assess compatibility  
+- Select an **App Service Plan** matching workload needs  
+- Deploy using **Azure DevOps / GitHub Actions**  
+- Enable **App Insights for monitoring**  
+- Secure the app with **RBAC, Private Endpoints, and Firewalls**  
+
